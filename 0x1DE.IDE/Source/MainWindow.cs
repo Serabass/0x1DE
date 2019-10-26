@@ -133,6 +133,30 @@ namespace OxIDE.IDE
 			}
 		}
 
-		#endregion	
-	}
+        #endregion
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            // Save the current active document if possible.
+            var savableDocument = this.DockPanel.ActiveDocument as ISavableDocument;
+            if (savableDocument != null)
+            {
+                savableDocument.Compile();
+            }
+        }
+
+        private void MainWindow_Load(object sender, EventArgs e)
+        {
+            var sourceDoc = new SourceDocument(m_compiler);
+            sourceDoc.LoadFile(@"D:\Program Files (x86)\Grand Theft Auto Vice City\test.asm");
+            sourceDoc.Show(this.DockPanel, DockState.Document);
+
+            // Save the current active document if possible.
+            var savableDocument = this.DockPanel.ActiveDocument as ISavableDocument;
+            if (savableDocument != null)
+            {
+                savableDocument.Compile();
+            }
+        }
+    }
 }

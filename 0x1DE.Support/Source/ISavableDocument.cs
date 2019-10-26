@@ -28,6 +28,7 @@ namespace OxIDE.Support
 		/// Saves the document.
 		/// </summary>
 		void Save();
+		void Compile();
 
 		#endregion
 	}

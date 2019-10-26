@@ -33,9 +33,10 @@ namespace OxIDE.DCPU.ASM
 			this.Compiler = compiler;
 
 			InitializeComponent();
+            Font = new Font(Font.FontFamily.Name, 30f);
 
-			// Setup the highlighter.
-			m_highlighter = new FastColoredTextBoxHighlighter(this.ContentEditor, this.Compiler.Language);
+            // Setup the highlighter.
+            m_highlighter = new FastColoredTextBoxHighlighter(this.ContentEditor, this.Compiler.Language);
 		}
 
 		#endregion
@@ -145,6 +146,16 @@ namespace OxIDE.DCPU.ASM
 			}
 		}
 
+        public void Compile()
+        {
+            if (this.IsDirty == true)
+            {
+                this.Save();
+            }
+            var contents = this.ContentEditor.Text;
+            var p = this.Compiler.CompileProgram(contents, "");
+            var b = p.Buffer;
+        }
 		#endregion
 	}
 }
