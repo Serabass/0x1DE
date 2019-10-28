@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 using Irony.Parsing;
-
+using Organic;
 using OxIDE.DCPU;
 
 namespace OxIDE.DCPU.ASM
@@ -58,6 +59,8 @@ namespace OxIDE.DCPU.ASM
             private set;
         }
 
+        public List<string> labels = new List<string>();
+
         #endregion
 
         #region Methods
@@ -79,10 +82,32 @@ namespace OxIDE.DCPU.ASM
             // Parse the given source.
             var parseTree = this.Parser.Parse(source, fileName);
 
-            foreach (var token in parseTree.Tokens)
+            Assembler assembler = new Assembler();
+            var output = assembler.Assemble(source, "[piped input]");
+
+            ushort currentAddress = 0;
+            bool bigEndian = true;
+            
+            string outputFile = Path.GetDirectoryName(fileName) + "\\"
+                + Path.GetFileNameWithoutExtension(fileName) + ".bin";
+
+            Stream binStream = File.Open(outputFile, FileMode.Create);
+            foreach (var entry in output)
             {
-                Debugger.Break();
+                if (entry.Output != null)
+                {
+                    foreach (ushort value in entry.Output)
+                    {
+                        currentAddress++;
+                        byte[] buffer = BitConverter.GetBytes(value);
+                        if (bigEndian)
+                            Array.Reverse(buffer);
+                        binStream.Write(buffer, 0, buffer.Length);
+                    }
+                }
             }
+
+            binStream.Close();
 
             return new Program(new ushort[0]);
         }

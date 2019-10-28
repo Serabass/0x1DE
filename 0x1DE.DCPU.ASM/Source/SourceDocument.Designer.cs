@@ -48,6 +48,7 @@
             this.ContentEditor.TabIndex = 0;
             this.ContentEditor.Text = "fastColoredTextBox1";
             this.ContentEditor.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.ContentEditor_TextChangedDelayed);
+            this.ContentEditor.Load += new System.EventHandler(this.ContentEditor_Load);
             this.ContentEditor.Enter += new System.EventHandler(this.ContentEditor_Enter);
             this.ContentEditor.Leave += new System.EventHandler(this.ContentEditor_Leave);
             // 
@@ -67,6 +68,6 @@
 
 		#endregion
 
-		private FastColoredTextBoxNS.FastColoredTextBox ContentEditor;
+		public FastColoredTextBoxNS.FastColoredTextBox ContentEditor;
 	}
 }

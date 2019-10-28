@@ -15,136 +15,164 @@ using Irony.Parsing;
 using Irony.Highlighter.Highlighter;
 
 using OxIDE.Support;
+using Organic;
 
 namespace OxIDE.DCPU.ASM
 {
-	/// <summary>
-	/// Represents a document used for editing assembly code.
-	/// </summary>
-	public partial class SourceDocument : DockContent, ISavableDocument
-	{
-		#region Constructors
+    /// <summary>
+    /// Represents a document used for editing assembly code.
+    /// </summary>
+    public partial class SourceDocument : DockContent, ISavableDocument
+    {
+        #region Constructors
 
-		/// <summary>
-		/// Creates and initializes a new source document with the given compiler.
-		/// </summary>
-		public SourceDocument(ASMCompiler compiler)
-		{
-			this.Compiler = compiler;
+        /// <summary>
+        /// Creates and initializes a new source document with the given compiler.
+        /// </summary>
+        public SourceDocument(ASMCompiler compiler)
+        {
+            this.Compiler = compiler;
 
-			InitializeComponent();
+            InitializeComponent();
             Font = new Font(Font.FontFamily.Name, 30f);
 
             // Setup the highlighter.
             m_highlighter = new FastColoredTextBoxHighlighter(this.ContentEditor, this.Compiler.Language);
-		}
+            m_highlighter.TextBox.PaintLine += TextBox_PaintLine; ;
+        }
 
-		#endregion
+        private void TextBox_PaintLine(object sender, PaintLineEventArgs e)
+        {
+            if (!Injector.Instance().Loaded)
+            {
+                return;
+            }
+            var PC = Injector.Instance().ReadRegs()[0x09];
 
-		#region Fields
+            if (!mapping.ContainsKey((ushort)PC))
+            {
+                return;
+            }
 
-		private FastColoredTextBoxHighlighter m_highlighter;
-		private string m_originalText;
+            var line = mapping[(ushort)PC];
 
-		#endregion
+            if (line == e.LineIndex)
+            {
+                var b = new SolidBrush(Color.Red);
+                e.Graphics.FillRectangle(b, e.LineRect);
+            }
+        }
 
-		#region Properties
+        #endregion
 
-		/// <summary>
-		/// Gets the compiler responsible for this source document.
-		/// </summary>
-		public ASMCompiler Compiler
-		{
-			get;
-			private set;
-		}
+        #region Fields
 
-		/// <summary>
-		/// Gets the path of the file currently edited.
-		/// </summary>
-		public string FilePath
-		{
-			get;
-			private set;
-		}
+        public FastColoredTextBoxHighlighter m_highlighter;
+        private string m_originalText;
 
-		#endregion
+        #endregion
 
-		#region Methods
+        #region Properties
 
-		/// <summary>
-		/// Loads the given file.
-		/// </summary>
-		/// <param name="filePath">The file to load.</param>
-		public void LoadFile(string filePath)
-		{
-			this.FilePath = filePath;
+        /// <summary>
+        /// Gets the compiler responsible for this source document.
+        /// </summary>
+        public ASMCompiler Compiler
+        {
+            get;
+            private set;
+        }
 
-			// Prepare the content editor with the contents of the file.
-			var content = File.ReadAllText(filePath);
-			this.ContentEditor.Text = content;
-			this.ContentEditor.ClearUndo();
+        /// <summary>
+        /// Gets the path of the file currently edited.
+        /// </summary>
+        public string FilePath
+        {
+            get;
+            private set;
+        }
 
-			// Store the original text.
-			m_originalText = this.ContentEditor.Text;
+        public List<LineOffsetMapping> loMapping = new List<LineOffsetMapping>();
+        public Dictionary<ushort, int> mapping = new Dictionary<ushort, int>();
 
-			// Set the title.
-			this.Text = Path.GetFileName(filePath);
-		}
+        #endregion
 
-		private void CheckDirty()
-		{
-			if (this.IsDirty == true && this.Text.EndsWith("*") == false)
-			{
-				this.Text += "*";
-			}
-			else if (this.IsDirty == false && this.Text.EndsWith("*") == true)
-			{
-				this.Text = this.Text.Remove(this.Text.Length - 1);
-			}
-		}
+        #region Methods
 
-		#endregion
+        /// <summary>
+        /// Loads the given file.
+        /// </summary>
+        /// <param name="filePath">The file to load.</param>
+        public void LoadFile(string filePath)
+        {
+            this.FilePath = filePath;
 
-		#region Event methods
+            // Prepare the content editor with the contents of the file.
+            var content = File.ReadAllText(filePath);
+            this.ContentEditor.Text = content;
+            this.ContentEditor.ClearUndo();
 
-		private void ContentEditor_Enter(object sender, EventArgs e)
-		{
-			m_highlighter.Adapter.Activate();
-		}
+            // Store the original text.
+            m_originalText = this.ContentEditor.Text;
 
-		private void ContentEditor_Leave(object sender, EventArgs e)
-		{
-			m_highlighter.Adapter.Stop();
-		}
+            // Set the title.
+            this.Text = Path.GetFileName(filePath);
+        }
 
-		private void ContentEditor_TextChangedDelayed(object sender, TextChangedEventArgs e)
-		{
-			CheckDirty();
-		}
+        private void CheckDirty()
+        {
+            if (this.IsDirty == true && this.Text.EndsWith("*") == false)
+            {
+                this.Text += "*";
+            }
+            else if (this.IsDirty == false && this.Text.EndsWith("*") == true)
+            {
+                this.Text = this.Text.Remove(this.Text.Length - 1);
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region ISavableDocument Members
+        #region Event methods
 
-		public bool IsDirty
-		{			
-			get { return m_originalText != this.ContentEditor.Text; }
-		}
+        private void ContentEditor_Enter(object sender, EventArgs e)
+        {
+            m_highlighter.Adapter.Activate();
+        }
 
-		public void Save()
-		{
-			if (this.IsDirty == true)
-			{
-				// Write all the contents to the file.
-				var contents = this.ContentEditor.Text;
-				File.WriteAllText(this.FilePath, contents);
+        private void ContentEditor_Leave(object sender, EventArgs e)
+        {
+            m_highlighter.Adapter.Stop();
+        }
 
-				// Reset the dirty state.
-				m_originalText = contents;
-				CheckDirty();
-			}
-		}
+        private void ContentEditor_TextChangedDelayed(object sender, TextChangedEventArgs e)
+        {
+            CheckDirty();
+            CompileInMemory();
+        }
+
+        #endregion
+
+        #region ISavableDocument Members
+
+        public bool IsDirty
+        {
+            get { return m_originalText != this.ContentEditor.Text; }
+        }
+
+        public void Save()
+        {
+            if (this.IsDirty == true)
+            {
+                // Write all the contents to the file.
+                var contents = this.ContentEditor.Text;
+                File.WriteAllText(this.FilePath, contents);
+
+                // Reset the dirty state.
+                m_originalText = contents;
+                CheckDirty();
+            }
+        }
 
         public void Compile()
         {
@@ -153,9 +181,55 @@ namespace OxIDE.DCPU.ASM
                 this.Save();
             }
             var contents = this.ContentEditor.Text;
-            var p = this.Compiler.CompileProgram(contents, "");
-            var b = p.Buffer;
+            var p = this.Compiler.CompileProgram(contents, FilePath);
         }
-		#endregion
-	}
+        #endregion
+
+        public void CompileInMemory()
+        {
+            Assembler assembler = new Assembler();
+            var savableDocument = this.DockPanel.ActiveDocument as SourceDocument;
+            var contents = savableDocument.ContentEditor.Text;
+            var output = assembler.Assemble(contents);
+            ushort currentAddress = 0;
+            List<ushort> data = new List<ushort>();
+            foreach (var entry in output)
+            {
+                loMapping.Add(new LineOffsetMapping
+                {
+                    LineNumber = entry.LineNumber,
+                    Address = entry.Address
+                });
+
+                if (mapping.ContainsKey(entry.Address))
+                {
+                    mapping.Remove(entry.Address);
+                }
+
+                mapping.Add(entry.Address, entry.LineNumber);
+
+                if (entry.Output != null)
+                {
+                    foreach (ushort value in entry.Output)
+                    {
+                        currentAddress++;
+                        data.Add(value);
+                    }
+                }
+            }
+
+            var arr = data.ToArray();
+        }
+
+        private void ContentEditor_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+
+    public class LineOffsetMapping
+    {
+        public int LineNumber;
+        public ushort Address;
+    }
 }

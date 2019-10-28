@@ -60,9 +60,10 @@
             this.OpenFileBtn = new System.Windows.Forms.ToolStripButton();
             this.SaveBtn = new System.Windows.Forms.ToolStripButton();
             this.SaveAllBtn = new System.Windows.Forms.ToolStripButton();
+            this.btnBuild = new System.Windows.Forms.ToolStripButton();
+            this.bonBuildAndInject = new System.Windows.Forms.ToolStripButton();
             this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.btnBuild = new System.Windows.Forms.ToolStripButton();
             this.MainMenu.SuspendLayout();
             this.MainStatusStrip.SuspendLayout();
             this.StandardToolbar.SuspendLayout();
@@ -94,7 +95,7 @@
             this.MenuNewButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuNewASMFileBtn});
             this.MenuNewButton.Name = "MenuNewButton";
-            this.MenuNewButton.Size = new System.Drawing.Size(180, 22);
+            this.MenuNewButton.Size = new System.Drawing.Size(135, 22);
             this.MenuNewButton.Text = "&New";
             // 
             // MenuNewASMFileBtn
@@ -110,7 +111,7 @@
             this.MenuOpenBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuOpenFileBtn});
             this.MenuOpenBtn.Name = "MenuOpenBtn";
-            this.MenuOpenBtn.Size = new System.Drawing.Size(180, 22);
+            this.MenuOpenBtn.Size = new System.Drawing.Size(135, 22);
             this.MenuOpenBtn.Text = "&Open";
             // 
             // MenuOpenFileBtn
@@ -118,20 +119,20 @@
             this.MenuOpenFileBtn.Image = ((System.Drawing.Image)(resources.GetObject("MenuOpenFileBtn.Image")));
             this.MenuOpenFileBtn.Name = "MenuOpenFileBtn";
             this.MenuOpenFileBtn.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.MenuOpenFileBtn.Size = new System.Drawing.Size(180, 22);
+            this.MenuOpenFileBtn.Size = new System.Drawing.Size(144, 22);
             this.MenuOpenFileBtn.Text = "&File...";
             this.MenuOpenFileBtn.Click += new System.EventHandler(this.OpenFileBtn_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(132, 6);
             // 
             // MenuExitBtn
             // 
             this.MenuExitBtn.Name = "MenuExitBtn";
             this.MenuExitBtn.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.MenuExitBtn.Size = new System.Drawing.Size(180, 22);
+            this.MenuExitBtn.Size = new System.Drawing.Size(135, 22);
             this.MenuExitBtn.Text = "E&xit";
             // 
             // MainStatusStrip
@@ -212,6 +213,7 @@
             dockPanelSkin2.DockPaneStripSkin = dockPaneStripSkin2;
             this.DockPanel.Skin = dockPanelSkin2;
             this.DockPanel.TabIndex = 0;
+            this.DockPanel.ActiveContentChanged += new System.EventHandler(this.DockPanel_ActiveContentChanged);
             // 
             // StandardToolbar
             // 
@@ -220,11 +222,13 @@
             this.OpenFileBtn,
             this.SaveBtn,
             this.SaveAllBtn,
-            this.btnBuild});
+            this.btnBuild,
+            this.bonBuildAndInject});
             this.StandardToolbar.Location = new System.Drawing.Point(0, 24);
             this.StandardToolbar.Name = "StandardToolbar";
             this.StandardToolbar.Size = new System.Drawing.Size(1264, 25);
             this.StandardToolbar.TabIndex = 7;
+            this.StandardToolbar.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.StandardToolbar_ItemClicked);
             // 
             // AddNewItemBtn
             // 
@@ -266,6 +270,26 @@
             this.SaveAllBtn.Text = "Save All";
             this.SaveAllBtn.Click += new System.EventHandler(this.SaveAllBtn_Click);
             // 
+            // btnBuild
+            // 
+            this.btnBuild.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnBuild.Image = ((System.Drawing.Image)(resources.GetObject("btnBuild.Image")));
+            this.btnBuild.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnBuild.Name = "btnBuild";
+            this.btnBuild.Size = new System.Drawing.Size(38, 22);
+            this.btnBuild.Text = "Build";
+            this.btnBuild.Click += new System.EventHandler(this.toolStripButton1_Click);
+            // 
+            // bonBuildAndInject
+            // 
+            this.bonBuildAndInject.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.bonBuildAndInject.Image = ((System.Drawing.Image)(resources.GetObject("bonBuildAndInject.Image")));
+            this.bonBuildAndInject.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.bonBuildAndInject.Name = "bonBuildAndInject";
+            this.bonBuildAndInject.Size = new System.Drawing.Size(93, 22);
+            this.bonBuildAndInject.Text = "Build and inject";
+            this.bonBuildAndInject.Click += new System.EventHandler(this.bonBuildAndInject_Click);
+            // 
             // OpenFileDialog
             // 
             this.OpenFileDialog.Filter = "ASM file|*.asm|HEX file|*.hex|Binary file|*.bin";
@@ -274,16 +298,6 @@
             // SaveFileDialog
             // 
             this.SaveFileDialog.Title = "Save File";
-            // 
-            // btnBuild
-            // 
-            this.btnBuild.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnBuild.Image = ((System.Drawing.Image)(resources.GetObject("btnBuild.Image")));
-            this.btnBuild.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnBuild.Name = "btnBuild";
-            this.btnBuild.Size = new System.Drawing.Size(23, 22);
-            this.btnBuild.Text = "btnBuild";
-            this.btnBuild.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
             // MainWindow
             // 
@@ -332,5 +346,6 @@
 		private System.Windows.Forms.ToolStripButton SaveAllBtn;
 		private System.Windows.Forms.SaveFileDialog SaveFileDialog;
         private System.Windows.Forms.ToolStripButton btnBuild;
+        private System.Windows.Forms.ToolStripButton bonBuildAndInject;
     }
 }

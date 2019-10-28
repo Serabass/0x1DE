@@ -83,6 +83,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\organic\Organic\Organic.csproj">
+      <Project>{11ff5ce7-bd0b-48ee-9236-c91af6b9ff6a}</Project>
+      <Name>Organic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\0x1DE.DCPU\0x1DE.DCPU.csproj">
       <Project>{9E7E952D-B7E1-481A-8B6E-51EB7D134494}</Project>
       <Name>0x1DE.DCPU</Name>

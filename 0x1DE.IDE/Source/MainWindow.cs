@@ -11,6 +11,8 @@ using System.IO;
 using WeifenLuo.WinFormsUI.Docking;
 using OxIDE.DCPU.ASM;
 using OxIDE.Support;
+using Organic;
+using OxIDE.DCPU;
 
 namespace OxIDE.IDE
 {
@@ -18,19 +20,24 @@ namespace OxIDE.IDE
 	/// The main window off the application.
 	/// </summary>
 	public partial class MainWindow : Form
-	{
-		#region Constructors
+    {
+        Injector injector;
+        public List<LineOffsetMapping> loMapping = new List<LineOffsetMapping>();
+        public Dictionary<ushort, int> mapping = new Dictionary<ushort, int>();
 
-		/// <summary>
-		/// Initializes the main window.
-		/// </summary>
-		public MainWindow()
+        #region Constructors
+
+        /// <summary>
+        /// Initializes the main window.
+        /// </summary>
+        public MainWindow()
 		{
 			InitializeComponent();
 
 			// TODO: make the document types, compiler modular.
 			m_compiler = new ASMCompiler();
-		}
+            injector = Injector.Instance();
+        }
 
 		#endregion
 
@@ -64,6 +71,7 @@ namespace OxIDE.IDE
 					var sourceDoc = new SourceDocument(m_compiler);
 					sourceDoc.LoadFile(filePath);
 					sourceDoc.Show(this.DockPanel, DockState.Document);
+
 				}
 				catch (Exception ex)
 				{
@@ -155,8 +163,60 @@ namespace OxIDE.IDE
             var savableDocument = this.DockPanel.ActiveDocument as ISavableDocument;
             if (savableDocument != null)
             {
-                savableDocument.Compile();
+                // savableDocument.Compile();
             }
+
+        }
+
+        private void bonBuildAndInject_Click(object sender, EventArgs e)
+        {
+            Assembler assembler = new Assembler();
+            var savableDocument = this.DockPanel.ActiveDocument as SourceDocument;
+            var contents = savableDocument.ContentEditor.Text;
+            var output = assembler.Assemble(contents, "[piped input]");
+            ushort currentAddress = 0;
+            List<ushort> data = new List<ushort>();
+
+            foreach (var entry in output)
+            {
+                loMapping.Add(new LineOffsetMapping
+                {
+                    LineNumber = entry.LineNumber,
+                    Address = entry.Address
+                });
+
+                if (mapping.ContainsKey(entry.Address))
+                {
+                    mapping.Remove(entry.Address);
+                }
+
+                var l = entry.LineNumber;
+                var o = entry.Address;
+                if (entry.Output != null)
+                {
+                    foreach (ushort value in entry.Output)
+                    {
+                        currentAddress++;
+                        data.Add(value);
+                    }
+                }
+            }
+
+            var arr = data.ToArray();
+            injector.InjectByteCode(arr);
+
+            var df = new DebugForm();
+            df.Show(this);
+        }
+
+        private void DockPanel_ActiveContentChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void StandardToolbar_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
     }
 }

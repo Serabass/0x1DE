@@ -37,18 +37,30 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\_Dependencies\FastColoredTextBox.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
     <Reference Include="WeifenLuo.WinFormsUI.Docking">
       <HintPath>..\_Dependencies\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\DebugForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Source\DebugForm.Designer.cs">
+      <DependentUpon>DebugForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -62,6 +74,9 @@
     </Compile>
     <Compile Include="Source\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Source\DebugForm.resx">
+      <DependentUpon>DebugForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -81,6 +96,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\organic\Organic\Organic.csproj">
+      <Project>{11ff5ce7-bd0b-48ee-9236-c91af6b9ff6a}</Project>
+      <Name>Organic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\0x1DE.DCPU.ASM\0x1DE.DCPU.ASM.csproj">
       <Project>{2D41FC9E-48C2-4D33-A24C-C15D28DCE2DF}</Project>
       <Name>0x1DE.DCPU.ASM</Name>
